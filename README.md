@@ -20,8 +20,7 @@ doctest.h                 — Infrastructure de tests (à copier dans le répert
 
 ### Prérequis
 
-- `clang++` (ou `g++`)
-- `doctest.h` présent dans le répertoire du projet
+`clang++` doit être installé, et `doctest.h` doit être présent dans le répertoire du projet.
 
 ### Commandes
 
@@ -29,13 +28,17 @@ doctest.h                 — Infrastructure de tests (à copier dans le répert
 # Compiler tout (simulation + tests)
 make
 
-# Lancer les tests uniquement
+# Lancer les tests
 make check
-# ou
-./tests -s    # affiche aussi les tests réussis
+
+# Lancer les tests avec affichage des tests réussis
+./tests -s
 
 # Lancer la simulation
 ./projet
+
+# Nettoyer les fichiers compilés
+make clean
 ```
 
 ## Utilisation de la simulation
@@ -58,10 +61,10 @@ Au lancement, le programme affiche une grille 20×20 initialisée aléatoirement
 ### Paramètres (dans `termite.hpp`)
 
 ```cpp
-const float probaTourner    = 0.1;   // probabilité de tourner quand la voie est libre
-const int   dureeSablier    = 6;     // délai minimum entre ramasser et poser (et vice-versa)
-const float densiteBrindille = 0.05; // densité initiale de brindilles sur la grille
-const int   nbTermites      = 20;    // nombre de termites
+const float probaTourner     = 0.1;   // probabilité de tourner quand la voie est libre
+const int   dureeSablier     = 6;     // délai minimum entre ramasser et poser (et vice-versa)
+const float densiteBrindille = 0.05;  // densité initiale de brindilles sur la grille
+const int   nbTermites       = 20;    // nombre de termites
 ```
 
 ## Architecture du code
@@ -72,15 +75,15 @@ Paire (ligne, colonne) validée à la construction : une `runtime_error` est lev
 
 ### `Direction`
 
-Énumération des 8 points cardinaux (N, NE, E, SE, S, SW, W, NW). Les fonctions `aGauche` et `aDroite` permettent de tourner d'un huitième de tour, et `devantCoord` calcule la case située dans la direction donnée depuis une coordonnée.
+Énumération des 8 points cardinaux (N, NE, E, SE, S, SW, W, NW). Les fonctions `aGauche` et `aDroite` permettent de tourner d'un huitième de tour. La fonction `devantCoord` calcule la case située dans la direction donnée depuis une coordonnée et propage la `runtime_error` du constructeur de `Coord` lorsque la case calculée sort des bornes de la grille. La fonction `dirAleatoire` renvoie une direction tirée au hasard parmi les huit.
 
 ### `Grille`
 
-Tableau 2D de cases représenté par la structure interne `Case` (attributs `bool brindille` et `int termite`, initialisés à `false` et `-1`). Chaque méthode de mutation vérifie sa précondition et lève `invalid_argument` en cas de violation, par exemple poser une brindille sur une case déjà occupée.
+Tableau 2D de cases représenté par la structure interne `Case` (attributs `bool brindille` et `int termite`, initialisés à `false` et `-1`). Chaque méthode de mutation vérifie sa précondition et lève une `invalid_argument` en cas de violation, par exemple poser une brindille sur une case déjà occupée ou enlever un termite d'une case qui n'en contient pas.
 
 ### `Termite`
 
-La classe encapsule les attributs `id`, `position`, `dir`, `porteBrindille`, `sablier` et `tourneSurPlace`. La méthode principale est `vieTermite(Grille&)`, qui orchestre l'ensemble du comportement décrit ci-dessus. Les méthodes auxiliaires comme `laVoieEstLibre`, `brindilleEnFace` et `voisinsLibres` interrogent la grille sans la modifier.
+La classe encapsule les attributs `id`, `position`, `dir`, `porteBrindille`, `sablier` et `tourneSurPlace`. La méthode principale est `vieTermite(Grille&)`, qui orchestre l'ensemble du comportement décrit ci-dessus. Les méthodes auxiliaires `laVoieEstLibre`, `brindilleEnFace` et `voisinsLibres` interrogent la grille sans la modifier et gèrent silencieusement les débordements de bords en attrapant les `runtime_error` de `Coord`.
 
 ### Cohérence grille et termites
 
@@ -88,4 +91,6 @@ L'information sur la position des termites est stockée en double : dans le vect
 
 ## Tests
 
-Les tests sont écrits avec [doctest](https://github.com/doctest/doctest) et couvrent les modules suivants. Pour `Coord`, on teste le constructeur, les cas limites, le rejet des coordonnées hors grille, l'égalité et l'affichage. Pour `Direction`, on vérifie que `aGauche` et `aDroite` sont bien inverses l'une de l'autre, que 8 rotations successives reviennent à la direction initiale, et que `devantCoord` produit les bons résultats pour les 8 directions ainsi qu'aux bords. Pour `Grille`, toutes les méthodes sont testées, y compris les exceptions. Pour `Termite`, on couvre le constructeur, `toString` (y compris le cas porteur de brindille), les rotations, `laVoieEstLibre`, `brindilleEnFace`, `voisinsLibres`, `avanceTermite`, ainsi que le couple `chargeBrindille` et `dechargeBrindille`.
+Les tests sont écrits avec [doctest](https://github.com/doctest/doctest) et couvrent les modules suivants.
+
+Pour `Coord`, on teste le constructeur, les cas limites, le rejet des coordonnées hors grille, l'égalité et l'affichage. Pour `Direction`, on vérifie que `aGauche` et `aDroite` sont bien inverses l'une de l'autre, que 8 rotations successives dans chaque sens reviennent à la direction initiale, et que `devantCoord` produit les bons résultats pour les 8 directions ainsi qu'aux bords. Pour `Grille`, toutes les méthodes sont testées, y compris les préconditions qui lèvent des exceptions. Pour `Termite`, on couvre le constructeur, `toString` (y compris le cas porteur de brindille qui affiche `X`), les rotations `tourneADroite` et `tourneAGauche`, `laVoieEstLibre`, `brindilleEnFace`, `voisinsLibres`, `avanceTermite`, ainsi que le couple `chargeBrindille` et `dechargeBrindille`.
