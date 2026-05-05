@@ -142,6 +142,7 @@ int main(int argc, const char **argv) {
 	// Lancer les tests doctest
     doctest::Context context(argc, argv);
     int test_result = context.run();
+	context.setAsDefaultForAssertsOutOfTestCases(); // ca permet que les CHECK, etc. de doctest fonctionnent même en dehors des blocs de tests i.e  sans ca les assertions hors TEST_CASE peuvent être ignorées.
     if (context.shouldExit()) return test_result;
 	   // Pour la Simulation 
     srand(time(NULL));
@@ -154,6 +155,8 @@ int main(int argc, const char **argv) {
 5) appel unePasse
 6) verifieCoherence
 **/
+	
+	/** TEST grille.cpp- opérateur d'affichage **/ 
     Grille g0;
     // On ajoute les  brindilles: 
 	g0.poseBrindille(Coord(0, 0));
@@ -166,7 +169,7 @@ int main(int argc, const char **argv) {
     g0.poseTermite(Coord(7, 2), 2);
 
     // Affichage en écriture ( debut du projet)
-    cout << "Voici l'affichage de la grille en version ecriture ( debut) : "<<endl;
+    cout << "Voici l'affichage de la grille en version ecriture ( TEST grille.cpp- Opérateur d'affichage) : "<<endl;
     cout << g0 << endl;
 
 	/** SUITE DU PROJET **/
@@ -187,15 +190,15 @@ int main(int argc, const char **argv) {
 	int nbPasse = 10; // à chaque fois on fait 10 etapes de simultation
    
 		// Commande pour interagir avec l'utilisateur
-	cout << "\nVoici les commandes disponibles ( à retenir pour le jeu car on l'affiche une seule fois !) : \n\nEntrée (touche) : " <<"Realiser "<< nbPasse << " passes ( nombre de passes courants)  \n. :quitter  \n* :accelerer ( passes x2 )  \n/ :ralentir (passes divisées par 2)\n" << endl;
+	cout << "\nVoici les commandes disponibles ( à retenir pour le jeu car on l'affiche une seule fois !) : \nEntrée (touche) : " <<"Realiser "<< nbPasse << " passes ( nombre de passes courants)  \n. :quitter  \n* :accelerer ( passes x2 )  \n/ :ralentir (passes divisées par 2)\n" << endl;
 
 // D'après page 7, q5 PDF- projet_termite:
 
 	char c = ' '; // char est un type de donnée qui permet de stocker un caractère à l'aide d'une variable. Ici, c'est très important de mettre ' ' et pas " " car c'est un char et pas un string
 	
 	while (c != '.') { // tant que l'utilisateur ne rentre pas ".", le programme ne s'arrete pas
-
-	    cout << "*** LE JEU DES TERMITES ***" << endl;
+		cout <<"--------------------------------------------------------------------------------------------------------------------------------------------------------------"<<endl; // C'est pour la lisiblité de l'affichage
+	    cout << "\n*** LE JEU DES TERMITES ***" << endl;
 		cout << "\n[passes=" << nbPasse << "  brindilles=" << compteBrindilles(g) << "]\nEntrez votre commande : ";
 
 		c = getchar(); //// Attend la réponse de l'utilisateur getchar() permet de détecter directement la touche Entrée, qui est nécessaire pour controler la simulation. Avec cin, ça ne marcherait pas car il ignore les retours à la ligne.

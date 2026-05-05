@@ -290,6 +290,16 @@ TEST_CASE("Termite:Affichage avec  toString") {
 
     Termite tNW(0, c, Direction::NW);
     CHECK(tNW.toString() == "\\");
+
+	// Test toString quand le termite porte une brindille ==> doit afficher "X"
+    Grille g2;
+    Coord cT(8, 8);
+    Coord cB(8, 9);
+    g2.poseTermite(cT, 0);
+    g2.poseBrindille(cB);
+    Termite tPorte(0, cT, Direction::E);
+    tPorte.chargeBrindille(g2);
+    CHECK(tPorte.toString() == "X");
 }
 
 

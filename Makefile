@@ -1,6 +1,7 @@
 CXX=clang++
 CXXFLAGS= -Wall -std=c++11 -g -O3
-EXEC_FILES= coord.cpp test.cpp grille.cpp projet.cpp termite.cpp
+EXEC_FILES= tests projet
+LDFLAGS =
 
 all: tests projet
 # Regle generique
@@ -15,9 +16,9 @@ tests: coord.o test.o grille.o termite.o
 projet: projet.o coord.o grille.o termite.o
 	$(CXX) $(LDFLAGS) -o $@ $^
 
-coord.o: coord.hpp
-test.o:  coord.hpp
-grille.o: grille.hpp
+coord.o: coord.hpp coord.cpp
+test.o:  test.cpp
+grille.o: grille.cpp  grille.hpp coord.hpp
 projet.o:  projet.cpp  coord.hpp grille.hpp termite.hpp
 termite.o: termite.cpp termite.hpp grille.hpp coord.hpp
 
@@ -25,4 +26,4 @@ check: tests
 	./tests
 
 clean:
-	rm -f *.o tests projet
+	rm -f *.o $(EXEC_FILES)
